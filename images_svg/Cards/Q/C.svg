@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="50"
+   height="70"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="C.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview22"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="4.9093414"
+     inkscape:cx="6.7218792"
+     inkscape:cy="38.905422"
+     inkscape:window-width="1280"
+     inkscape:window-height="730"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g22" />
+  <defs
+     id="defs6">
+    <linearGradient
+       x1="35.711"
+       y1="0"
+       x2="105.711"
+       y2="0"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient2">
+      <stop
+         offset="0"
+         stop-color="#fc0000"
+         id="stop1" />
+      <stop
+         offset="1"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       x1="0"
+       y1="0"
+       x2="100"
+       y2="100"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient4">
+      <stop
+         offset="0"
+         id="stop3" />
+      <stop
+         offset="1"
+         stop-color="#f70000"
+         id="stop4" />
+    </linearGradient>
+    <linearGradient
+       id="C"
+       x1="9.623"
+       y1="12.914"
+       x2="10.834"
+       y2="17.768"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0"
+         id="stop5" />
+      <stop
+         offset="1"
+         stop-color="#d4aa00"
+         id="stop6" />
+    </linearGradient>
+  </defs>
+  <g
+     transform="scale(2.5)"
+     id="g22">
+    <rect
+       width="19.704"
+       height="27.704"
+       x=".148"
+       y=".148"
+       rx="2.66"
+       ry="4.947"
+       fill="#fbf7ef"
+       stroke="#000"
+       stroke-width=".296"
+       id="rect6" />
+    <g
+       id="g24"
+       inkscape:label="Clubs"
+       transform="translate(14.000787,5.5584479e-4)">
+      <path
+         d="m 2.036,25.966 c 0.715,0.342 1.974,-1.31 1.974,-1.31 0,0 -1.444,-1.501 -2.114,-1.083 -0.347,0.216 -0.713,0.625 0.064,1.203 -0.703,0.645 -0.29,1.015 0.076,1.19 z"
+         id="path8" />
+      <path
+         d="M 4.013,23.552 C 3.304,23.191 1.99,24.808 1.99,24.808 c 0,0 1.41,1.539 2.096,1.139 0.355,-0.207 0.735,-0.606 -0.03,-1.204 0.725,-0.626 0.321,-1.007 -0.043,-1.191 z"
+         id="path9" />
+      <path
+         d="M 2.806,25.527 C 2.844,26.233 2.516,26.5 2.516,26.5 h 0.968 c 0,0 -0.34,-0.377 -0.29,-0.973"
+         id="path10" />
+    </g>
+    <g
+       id="g24-8"
+       inkscape:label="Clubs"
+       transform="translate(7.8721821e-4,-21.999444)">
+      <path
+         d="m 2.036,25.966 c 0.715,0.342 1.974,-1.31 1.974,-1.31 0,0 -1.444,-1.501 -2.114,-1.083 -0.347,0.216 -0.713,0.625 0.064,1.203 -0.703,0.645 -0.29,1.015 0.076,1.19 z"
+         id="path8-8" />
+      <path
+         d="M 4.013,23.552 C 3.304,23.191 1.99,24.808 1.99,24.808 c 0,0 1.41,1.539 2.096,1.139 0.355,-0.207 0.735,-0.606 -0.03,-1.204 0.725,-0.626 0.321,-1.007 -0.043,-1.191 z"
+         id="path9-2" />
+      <path
+         d="M 2.806,25.527 C 2.844,26.233 2.516,26.5 2.516,26.5 h 0.968 c 0,0 -0.34,-0.377 -0.29,-0.973"
+         id="path10-4" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#fbf7ef;stroke-width:0;stroke-linecap:round"
+       x="16.946493"
+       y="4.5"
+       id="text24-2-1"
+       inkscape:label="topright"><tspan
+         id="tspan24-7-4"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:0"
+         x="16.946493"
+         y="4.5"
+         sodipodi:role="line">Q</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.6667px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#fbf7ef;stroke-width:0;stroke-linecap:round"
+       x="9.9116583"
+       y="17.6252"
+       id="text24"
+       inkscape:label="main"><tspan
+         id="tspan24"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.6667px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:0"
+         x="9.9116583"
+         y="17.6252"
+         sodipodi:role="line">Q</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#fbf7ef;stroke-width:0;stroke-linecap:round"
+       x="2.9864936"
+       y="26.5"
+       id="text24-2"
+       inkscape:label="botleft"><tspan
+         id="tspan24-7"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:0"
+         x="2.9864936"
+         y="26.5"
+         sodipodi:role="line">Q</tspan></text>
+  </g>
+</svg>

@@ -13,6 +13,14 @@ class SVGManager:
             if svg.endswith(".svg"):
                 name = os.path.splitext(svg)[0]
                 self.loadSVG(name, os.path.join(path, svg))
+        path = os.path.join(ownpath, "images_svg/Cards")
+        for folder in os.listdir(path):
+            folder_path = os.path.join(path, folder)
+            if os.path.isdir(folder_path):
+                for svg in os.listdir(folder_path):
+                    if svg.endswith(".svg"):
+                        name = f"{folder}{os.path.splitext(svg)[0]}"
+                        self.loadSVG(name, os.path.join(folder_path, svg))
 
     def loadSVG(self, name, path):
         renderer = QSvgRenderer(path)

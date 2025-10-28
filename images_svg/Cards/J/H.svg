@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="50"
+   height="70"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="H.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview22"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="3.4714286"
+     inkscape:cx="-20.164609"
+     inkscape:cy="51.563786"
+     inkscape:window-width="1280"
+     inkscape:window-height="730"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g22" />
+  <defs
+     id="defs6">
+    <linearGradient
+       x1="35.711"
+       y1="0"
+       x2="105.711"
+       y2="0"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient2">
+      <stop
+         offset="0"
+         stop-color="#fc0000"
+         id="stop1" />
+      <stop
+         offset="1"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       x1="0"
+       y1="0"
+       x2="100"
+       y2="100"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient4">
+      <stop
+         offset="0"
+         id="stop3" />
+      <stop
+         offset="1"
+         stop-color="#f70000"
+         id="stop4" />
+    </linearGradient>
+    <linearGradient
+       id="C"
+       x1="9.623"
+       y1="12.914"
+       x2="10.834"
+       y2="17.768"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0"
+         id="stop5" />
+      <stop
+         offset="1"
+         stop-color="#d4aa00"
+         id="stop6" />
+    </linearGradient>
+  </defs>
+  <g
+     transform="scale(2.5)"
+     id="g22">
+    <rect
+       width="19.704"
+       height="27.704"
+       x=".148"
+       y=".148"
+       rx="2.66"
+       ry="4.947"
+       fill="#fbf7ef"
+       stroke="#000"
+       stroke-width=".296"
+       id="rect6" />
+    <path
+       d="M1.571 2.019C1.117 2.86 3 4.5 3 4.5s1.884-1.64 1.429-2.481c-.235-.435-.698-.906-1.437-.008-.722-.895-1.189-.422-1.422.008z"
+       fill="#c00"
+       id="path6"
+       inkscape:label="Hearts" />
+    <path
+       d="m 15.570637,24.019115 c -0.454,0.841 1.429,2.481 1.429,2.481 0,0 1.884,-1.64 1.429,-2.481 -0.235,-0.435 -0.698,-0.906 -1.437,-0.008 -0.722,-0.895 -1.189,-0.422 -1.422,0.008 z"
+       fill="#cc0000"
+       id="path6-9"
+       inkscape:label="Hearts" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#cc0000;fill-opacity:1;stroke:#fbf7ef;stroke-width:0;stroke-linecap:round"
+       x="16.946493"
+       y="4.5"
+       id="text24-2-1"
+       inkscape:label="topright"><tspan
+         id="tspan24-7-4"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;text-anchor:middle;fill:#cc0000;fill-opacity:1;stroke-width:0"
+         x="16.946493"
+         y="4.5"
+         sodipodi:role="line">J</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.6667px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#cc0000;fill-opacity:1;stroke:#fbf7ef;stroke-width:0;stroke-linecap:round"
+       x="9.9116583"
+       y="17.6252"
+       id="text24"
+       inkscape:label="main"><tspan
+         id="tspan24"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.6667px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;text-anchor:middle;fill:#cc0000;fill-opacity:1;stroke-width:0"
+         x="9.9116583"
+         y="17.6252"
+         sodipodi:role="line">J</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#cc0000;fill-opacity:1;stroke:#fbf7ef;stroke-width:0;stroke-linecap:round"
+       x="2.9864936"
+       y="26.5"
+       id="text24-2"
+       inkscape:label="botleft"><tspan
+         id="tspan24-7"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.11954px;font-family:'Century Schoolbook';-inkscape-font-specification:'Century Schoolbook Bold';text-align:center;text-anchor:middle;fill:#cc0000;fill-opacity:1;stroke-width:0"
+         x="2.9864936"
+         y="26.5"
+         sodipodi:role="line">J</tspan></text>
+  </g>
+</svg>
