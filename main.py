@@ -11,22 +11,22 @@ import sys
 import math
 import os
 import random
-import pprint
-import copy
-import csv
 from SVGManager import SVGManager
 from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtCore import QEventLoop, QTimer
 
 """
 To Do List:
-- Cards in a stack can be taken out into the foundation
 - Cards are not picked up as a group from tableau
-- Dragging cards does not have a function
 - Animation
 - Sound effects
-- Win detection
 - Fun Facts
 - waste shows more cards
+- size of win or cards is not quite fitting
+- small movements causing drag
+- clock
+- scoring
+- undo/redo
 """
 
 
@@ -49,6 +49,7 @@ class Card(QGraphicsPixmapItem):
         self.container = None
 
         self._dragging = False
+        self.Drag = False
         self._last_scene_pos = QPointF()
 
         self.updateState()
@@ -80,6 +81,7 @@ class Card(QGraphicsPixmapItem):
             return
         self._dragging = getattr(self, "_drag_enabled", True)
         if self._dragging:
+            self.Drag = False
             self._last_scene_pos = event.scenePos()
             self.grabMouse()
             self.setZValue(100)
@@ -88,6 +90,7 @@ class Card(QGraphicsPixmapItem):
 
     def mouseMoveEvent(self, event):
         if self._dragging:
+            self.Drag = True
             new_scene_pos = event.scenePos()
             delta = new_scene_pos - self._last_scene_pos
             self.setPos(self.pos() + delta)
@@ -96,14 +99,19 @@ class Card(QGraphicsPixmapItem):
     def mouseReleaseEvent(self, event):
         if event.button() != Qt.LeftButton:
             return
-        if self._dragging:
-            self._dragging = False
-            self.ungrabMouse()
+        destination_card = None
+        if self.Drag:
+            mousepos = event.scenePos()
+            destination_card = self.parent.releaseCard(self, mousepos)
         else:
             pass
+        self._dragging = False
+        self.Drag = False
+        self.ungrabMouse()
 
         self.setZValue(self.Z_Value)
-        self.validMove()
+        if destination_card != -1:
+            self.validMove(destination_card)
         self.updatePlace()
 
     def __str__(self):
@@ -142,7 +150,11 @@ class CardContainer:
         return QPointF(x, y)
         
     def validateMove(self, card: Card, destination=None) -> bool:
-        self.parent.CheckAutomaticMoves(card)
+        if destination is None:
+            self.parent.CheckAutomaticMoves(card)
+        else:
+            self.parent.CheckMove(card, destination)
+        self.parent.CheckAutoComplete()
         if self.parent.CheckWin():
             print("Congratulations! You've won the game.")
         return True
@@ -169,6 +181,7 @@ class Foundation(CardContainer):
             bgcard.setPixmap(image)
             bgcard.setPos(self.startpos.x() + i * self.x_offset, self.startpos.y())
             bgcard.setOpacity(0.5)
+            self.parent.foundationcards.append(bgcard)
             self.parent.scene.addItem(bgcard)
 
     def reset(self):
@@ -308,6 +321,16 @@ class MainWindow(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
+        self.foundationcards = []
+        self.basecards = []
+        for i in range(7):
+            rect = QGraphicsRectItem(0, 0, C_WIDTH, C_HEIGHT)
+            rect.setPos(50 + i * (C_WIDTH + 10), C_HEIGHT + 100)
+            rect.setBrush(QColor(255, 255, 255, 0))
+            rect.setPen(QPen(Qt.NoPen))
+            self.basecards.append(rect)
+            self.scene.addItem(rect)
+
         rsSize = 100
         rsPad = 20
         RestartImage = self.svg.getSVG("reload", (rsSize, rsSize))
@@ -324,7 +347,7 @@ class MainWindow(QGraphicsView):
     def initCards(self):
         self.all_cards = []
 
-        suits = ["Spades", "Hearts", "Diamonds", "Clubs"]
+        self.suits = ["Spades", "Hearts", "Diamonds", "Clubs"]
         self.oppositeSuits = {"Spades": ["Hearts", "Diamonds"],
                               "Hearts": ["Spades", "Clubs"],
                               "Diamonds": ["Spades", "Clubs"],
@@ -336,7 +359,7 @@ class MainWindow(QGraphicsView):
         self.Waste = Waste(QPointF(self.WindowWidth - C_WIDTH*2 - 100, 50), self)
 
         backside = self.svg.getSVG("backside", (C_WIDTH, C_HEIGHT))
-        for i, suit in enumerate(suits):
+        for i, suit in enumerate(self.suits):
             for rank_numb, rank in enumerate(ranks):
                 card_image = self.svg.getSVG(f"{rank}{suit[0]}", (C_WIDTH, C_HEIGHT))
                 card = Card(rank_numb+1, suit, card_image, backside, self)
@@ -349,10 +372,12 @@ class MainWindow(QGraphicsView):
         for container in [self.Foundation, self.Tableau, self.Stock, self.Waste]:
             container.reset()
         random.shuffle(self.all_cards)
-        for i in range(24):
+        removes = 4
+        n = 24+(7*removes-(sum(range(0, removes))))
+        for i in range(n):
             self.Stock.addCard(self.all_cards[i], faceup=False)
-        n = 24
-        for i in range(7):
+        n = 24+7+6+5+4
+        for i in range(7-removes):
             for j in range(i+1):
                 faceup = (i == j)
                 self.Tableau.addCard(self.all_cards[n], faceup=faceup, index=i)
@@ -364,6 +389,39 @@ class MainWindow(QGraphicsView):
                 return False
         self.WinWindow.popUp()
         return True
+
+    def CheckAutoComplete(self):
+        for card in self.all_cards:
+            if card.State == "facedown" and card.container == self.Tableau:
+                return False
+        Run = True
+        topfountain = []
+        print("Auto-complete started.")
+        for stack in self.Foundation.cards:
+            if stack:
+                topfountain.append(stack[-1].value)
+            else:
+                topfountain.append(0)
+        while Run:
+            Run = False
+            toptableau = []
+            for stack in self.Tableau.cards:
+                if stack:
+                    toptableau.append(stack[-1])
+            for card in self.Waste.cards[0] + toptableau + self.Stock.cards[0]:
+                if card.container != self.Foundation:
+                    symbol_index = self.suits.index(card.symbol)
+                    if card.value == topfountain[symbol_index] + 1:
+                        card.container.removeCard(card)
+                        self.Foundation.addCard(card, faceup=True, index=symbol_index)
+                        topfountain[symbol_index] += 1
+                        Run = True
+                        break
+            QApplication.processEvents()
+            _loop = QEventLoop()
+            QTimer.singleShot(100, _loop.quit)  # 100 ms delay (adjust as needed)
+            _loop.exec_()
+            QApplication.processEvents()
 
     def CheckAutomaticMoves(self, card: Card):
         value = card.value
@@ -405,6 +463,68 @@ class MainWindow(QGraphicsView):
                 self.Tableau.addCard(c, faceup=True, index=i)
             return True
         return False
+
+    def CheckMove(self, card: Card, destination: Card=None) -> bool:
+        value = card.value
+        symbol = card.symbol
+        index = 0
+        if isinstance(destination, Card):
+            if destination.container == self.Foundation:
+                if card.container == self.Tableau:
+                    if self.Tableau.cards[card.Index][-1] != card:
+                        return False
+                if destination.value == value - 1 and destination.symbol == symbol:
+                    card.container.removeCard(card)
+                    self.Foundation.addCard(card, faceup=True, index=destination.Index)
+                    return True
+                return False
+            elif destination.container == self.Tableau:
+                if destination.value - 1 == value and destination.symbol in self.oppositeSuits[symbol]:
+                    index = destination.Index
+                else:
+                    return False
+        elif destination in range(7) and value == 13 and self.Tableau.cards[destination] == []:
+            index = destination
+        elif destination in range(10, 14):
+            dest_index = destination - 10
+            if card.container == self.Tableau:
+                if self.Tableau.cards[card.Index][-1] != card:
+                    return False
+            if value == 1 and card.symbol == ["Spades", "Hearts", "Diamonds", "Clubs"][dest_index]:
+                card.container.removeCard(card)
+                self.Foundation.addCard(card, faceup=True, index=dest_index)
+                return True
+            return False
+        else:
+            return False
+        cardgroup = []
+        if card.container == self.Tableau:
+            for c in self.Tableau.cards[card.Index][::-1]:
+                if c == card:
+                    break
+                cardgroup.append(c)
+        cardgroup.append(card)
+        cardgroup = cardgroup[::-1]
+        for c in cardgroup:
+            c.container.removeCard(c)
+            self.Tableau.addCard(c, faceup=True, index=index)
+        return True
+            
+    def releaseCard(self, dragcard: Card, mousepos: QPointF=None):
+        items = self.scene.items(mousepos)
+        for item in items:
+            if item in self.basecards:
+                return self.basecards.index(item)
+            if item in self.foundationcards:
+                return self.foundationcards.index(item) + 10
+            if isinstance(item, Card) and item != dragcard and item == item.container.cards[item.Index][-1] \
+                and item.container in [self.Tableau, self.Foundation] and item.State == "faceup":
+                return item
+        return -1
+
+    def closeEvent(self, a0):
+        self.WinWindow.close()
+        return super().closeEvent(a0)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
