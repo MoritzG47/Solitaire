@@ -17,13 +17,11 @@ from PyQt5.QtCore import QEventLoop, QTimer
 
 """
 To Do List:
-- Cards are not picked up as a group from tableau
 - Animation
 - Sound effects
 - Fun Facts
 - waste shows more cards
 - size of win or cards is not quite fitting
-- small movements causing drag
 - clock
 - scoring
 - undo/redo
@@ -32,6 +30,7 @@ To Do List:
 
 C_WIDTH = 25 * 6
 C_HEIGHT = 35 * 6
+PAD = 50
 
 class Card(QGraphicsPixmapItem):
     def __init__(self, value: int, symbol: str, image: QPixmap, backside: QPixmap, parent=None):
@@ -46,11 +45,14 @@ class Card(QGraphicsPixmapItem):
         self.State = "faceup"  # or "facedown"
         self.Index = 0
         self.position = QPointF(0, 0)
+        self.Stacklist = []
         self.container = None
 
         self._dragging = False
         self.Drag = False
         self._last_scene_pos = QPointF()
+        self.start_pos = QPointF()
+        self.drag_threshold = 20  # Minimum distance in pixels to start a drag
 
         self.updateState()
         self.updatePlace()
@@ -83,18 +85,33 @@ class Card(QGraphicsPixmapItem):
         if self._dragging:
             self.Drag = False
             self._last_scene_pos = event.scenePos()
+            self.start_pos = event.scenePos()
             self.grabMouse()
-            self.setZValue(100)
+            self.Stacklist = []
+            if isinstance(self.container, Tableau):
+                for c in self.container.cards[self.Index][::-1]:
+                    if c == self:
+                        break
+                    self.Stacklist.append(c)
+            self.Stacklist.append(self)
+            self.Stacklist = self.Stacklist[::-1]
+            for c in self.Stacklist:
+                c.setZValue(100 + c.Z_Value)
         else:
             pass
 
     def mouseMoveEvent(self, event):
         if self._dragging:
-            self.Drag = True
+            if (event.scenePos() - self.start_pos).manhattanLength() > self.drag_threshold:
+                self.Drag = True
             new_scene_pos = event.scenePos()
             delta = new_scene_pos - self._last_scene_pos
-            self.setPos(self.pos() + delta)
+            self.moveStack(delta)
             self._last_scene_pos = new_scene_pos
+
+    def moveStack(self, delta: QPointF):
+        for c in self.Stacklist:
+            c.setPos(c.pos() + delta)
 
     def mouseReleaseEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -103,16 +120,20 @@ class Card(QGraphicsPixmapItem):
         if self.Drag:
             mousepos = event.scenePos()
             destination_card = self.parent.releaseCard(self, mousepos)
+            print("Dragged", self)
         else:
             pass
         self._dragging = False
         self.Drag = False
         self.ungrabMouse()
 
-        self.setZValue(self.Z_Value)
+        for c in self.container.cards[self.Index]:
+            c.setZValue(c.Z_Value)
         if destination_card != -1:
             self.validMove(destination_card)
-        self.updatePlace()
+        for c in self.Stacklist:
+            c.updatePlace()
+        self.Stacklist = []
 
     def __str__(self):
         return f"Card: {self.value} of {self.symbol}"
@@ -353,10 +374,10 @@ class MainWindow(QGraphicsView):
                               "Diamonds": ["Spades", "Clubs"],
                               "Clubs": ["Hearts", "Diamonds"]}
         ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-        self.Foundation = Foundation(QPointF(50, 50), self)
-        self.Tableau = Tableau(QPointF(50, C_HEIGHT+100), self)
-        self.Stock = Stock(QPointF(self.WindowWidth - C_WIDTH - 50, 50), self)
-        self.Waste = Waste(QPointF(self.WindowWidth - C_WIDTH*2 - 100, 50), self)
+        self.Foundation = Foundation(QPointF(PAD, PAD), self)
+        self.Tableau = Tableau(QPointF(PAD, C_HEIGHT+PAD*2), self)
+        self.Stock = Stock(QPointF(self.WindowWidth - C_WIDTH - PAD, PAD), self)
+        self.Waste = Waste(QPointF(self.WindowWidth - C_WIDTH*2 - PAD*2, PAD), self)
 
         backside = self.svg.getSVG("backside", (C_WIDTH, C_HEIGHT))
         for i, suit in enumerate(self.suits):
