@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QSystemTrayIcon, QMenu, QAction, QToolBar
-from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPixmap, QFontMetrics, QIcon, QTransform, QPainterPath, QPalette, QBrush
-from PyQt5.QtCore import QRectF, Qt, QPointF, QPoint
-from PyQt5.QtCore import QTimer, QElapsedTimer, QRect, QUrl
+from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPixmap, QFontMetrics, QIcon
+from PyQt5.QtCore import QRectF, Qt, QPointF, QPoint, QObject
+from PyQt5.QtCore import QTimer, QElapsedTimer, QRect, QUrl, QTime
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
@@ -12,17 +12,15 @@ import math
 import os
 import random
 from SVGManager import SVGManager
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtCore import QEventLoop, QTimer
+from PyQt5.QtGui import QTextOption, QTransform, QPainterPath, QPalette, QBrush
+from PyQt5.QtWidgets import QPushButton, QGraphicsTextItem
+from PyQt5.QtCore import QEventLoop, QTimer, pyqtProperty
 
 """
 To Do List:
-- Animation
 - Sound effects
-- Fun Facts
 - waste shows more cards
 - size of win or cards is not quite fitting
-- clock
 - scoring
 - undo/redo
 """
@@ -30,11 +28,27 @@ To Do List:
 
 C_WIDTH = 25 * 6
 C_HEIGHT = 35 * 6
-PAD = 50
+PAD = 30
+
+
+class ItemAnimator(QObject):
+    """A QObject that exposes a QGraphicsItem's position as an animatable property."""
+    def __init__(self, item):
+        super().__init__()
+        self.item = item
+
+    def getPos(self):
+        return self.item.pos()
+
+    def setPos(self, pos):
+        self.item.setPos(pos)
+
+    pos = pyqtProperty(QPointF, fget=getPos, fset=setPos)
 
 class Card(QGraphicsPixmapItem):
     def __init__(self, value: int, symbol: str, image: QPixmap, backside: QPixmap, parent=None):
         super().__init__()
+
         self.image = image
         self.backside = backside
         self.value = value
@@ -53,9 +67,11 @@ class Card(QGraphicsPixmapItem):
         self._last_scene_pos = QPointF()
         self.start_pos = QPointF()
         self.drag_threshold = 20  # Minimum distance in pixels to start a drag
+        self._animation = None
 
         self.updateState()
-        self.updatePlace()
+        self.setPos(self.position)
+        self.setZValue(self.Z_Value)
 
     def updateState(self):
         if self.State == "faceup":
@@ -67,12 +83,35 @@ class Card(QGraphicsPixmapItem):
 
     def validMove(self, destination=None) -> bool:
         if self.container is not None:
-            self.container.validateMove(self, destination)
+            if self.container.validateMove(self, destination):
+                self.parent.Clock.start()
             return True
         return False
 
-    def updatePlace(self):
-        self.setPos(self.position)
+    def updatePlace(self, duration=300):
+        """Smoothly move the card to its target position."""
+        if duration <= 0:
+            self.setPos(self.position)
+            self.setZValue(self.Z_Value)
+            return
+
+        # Create or reuse the animator
+        if not hasattr(self, "_animator"):
+            self._animator = ItemAnimator(self)
+
+        # Stop any old animation
+        if hasattr(self, "_animation") and self._animation is not None:
+            self._animation.stop()
+
+        # Animate via the QObject wrapper
+        anim = QPropertyAnimation(self._animator, b'pos')
+        anim.setDuration(duration)
+        anim.setStartValue(self.pos())
+        anim.setEndValue(self.position)
+        anim.setEasingCurve(QEasingCurve.OutCubic)
+        anim.start()
+
+        self._animation = anim
         self.setZValue(self.Z_Value)
 
     def setDragEnabled(self, draggable: bool):
@@ -171,14 +210,15 @@ class CardContainer:
         return QPointF(x, y)
         
     def validateMove(self, card: Card, destination=None) -> bool:
+        moved = False
         if destination is None:
-            self.parent.CheckAutomaticMoves(card)
+            moved = self.parent.CheckAutomaticMoves(card)
         else:
-            self.parent.CheckMove(card, destination)
+            moved = self.parent.CheckMove(card, destination)
         self.parent.CheckAutoComplete()
         if self.parent.CheckWin():
-            print("Congratulations! You've won the game.")
-        return True
+            return False
+        return moved
 
     def reset(self):
         self.cards = [[]]
@@ -218,8 +258,7 @@ class Tableau(CardContainer):
     def validateMove(self, card, destination=None):
         if card.State == "facedown":
             return False
-        super().validateMove(card, destination)
-        return True
+        return super().validateMove(card, destination)
     
     def removeCard(self, card: Card):
         index = card.Index
@@ -261,6 +300,7 @@ class Stock(CardContainer):
     def validateMove(self, card, destination=None):
         self.cards[0].remove(card)
         self.parent.Waste.addCard(card, faceup=True)
+        return True
 
 class Waste(CardContainer):
     def __init__(self, startPos: QPointF, parent):
@@ -273,15 +313,15 @@ class WinScreen(QWidget):
     def __init__(self, parent=None, monitor=None):
         super().__init__()
         self.setWindowTitle("Win!")
-        WinWidth = 400
-        WinHeight = 200
+        self.WinWidth = 400
+        self.WinHeight = 200
         self.parent = parent
-        self.x = int((monitor.width - WinWidth) / 2)
-        self.y = int((monitor.height - WinHeight) / 2)
-        self.setGeometry(self.x, self.y, WinWidth, WinHeight)
+        self.x = int((monitor.width - self.WinWidth) / 2)
+        self.y = int((monitor.height - self.WinHeight) / 2)
+        self.setGeometry(self.x, self.y, self.WinWidth, self.WinHeight)
 
         self.label = QLabel("Congratulations! You've won the game!", self)
-        self.label.setGeometry(0, 30, WinWidth, 40)
+        self.label.setGeometry(0, 30, self.WinWidth, 40)
         self.label.setAlignment(Qt.AlignCenter)
         button = QPushButton("Restart", self)
         button.setFixedSize(140, 40)
@@ -292,9 +332,104 @@ class WinScreen(QWidget):
         self.parent.ShuffleCards()
         self.hide()
 
-    def popUp(self):
-        self.move(self.x, self.y)
+    def popUp(self, pos: QPoint, width, height):
+        x = int(pos.x() + (width - self.WinWidth) / 2)
+        y = int(pos.y() + (height - self.WinHeight) / 2)
+        self.move(x, y)
         self.show()
+
+class Clock(QGraphicsTextItem):
+    def __init__(self, width: int=0, height: int=0):
+        super().__init__()
+        text = "00:00"
+        self.setPlainText(text)
+        color = "#FFFFFF"
+        self.setDefaultTextColor(QColor(color))
+        font = QFont("Consolas", 24)
+        self.setFont(font)
+        font_metrics = QFontMetrics(font)
+        self.text_width = font_metrics.horizontalAdvance(text)
+        self.text_height = font_metrics.height()
+        x = int((width - self.text_width)/2)
+        y = PAD/2
+        self.setPos(x, y)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_time)
+        self.elapsed_time = QTime(0, 0, 0)
+
+    def start(self):
+        if not self.timer.isActive():
+            self.timer.start(1000)  # update every 1 second
+
+    def stop(self):
+        self.timer.stop()
+
+    def reset(self):
+        self.timer.stop()
+        self.elapsed_time = QTime(0, 0, 0)
+        self.setPlainText("00:00")
+
+    def update_time(self):
+        self.elapsed_time = self.elapsed_time.addSecs(1)
+        time_str = self.elapsed_time.toString("mm:ss")
+        self.setPlainText(time_str)
+
+class FunFacts(QGraphicsTextItem):
+    def __init__(self, width: int = 0, height: int = 0):
+        super().__init__()
+        self.width = width
+        self.height = height
+
+        with open("funfacts.txt", "r", encoding="utf-8") as f:
+            self.facts = f.readlines()
+        random.shuffle(self.facts)
+        self.index = 0
+        fact = self.facts[self.index].strip()
+
+        self.setPlainText(fact)
+        self.setDefaultTextColor(QColor(0, 0, 0))
+        font = QFont("Consolas", 9)
+        self.setFont(font) 
+        self.document().setDefaultTextOption(QTextOption(Qt.AlignCenter))
+
+        self.setPosition()
+
+    def update_fact(self):
+        self.index = (self.index + 1) % len(self.facts)
+        fact = self.facts[self.index].strip()
+        self.setPlainText(fact)
+        self.setPosition()
+        
+    def setPosition(self):
+        pad = 20
+        size = 100
+        w = self.width - size - pad
+        self.setTextWidth(w*0.9)
+
+        text_rect = self.boundingRect()
+        x = (w - text_rect.width())/2 + pad
+        y = self.height - text_rect.height()/2 - pad - size/2
+        self.setPos(x, y)
+
+
+class RoundedRect(QGraphicsRectItem):
+    def __init__(self, x, y, w, h, radius=12, action=None):
+        super().__init__(x, y, w, h)
+        self._radius = radius
+        self._action = action
+
+    def paint(self, painter, option, widget=None):
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(self.brush())
+        painter.setPen(self.pen())
+        painter.drawRoundedRect(self.rect(), self._radius, self._radius)
+
+    def mousePressEvent(self, event):
+        if self._action:
+            self._action()
+        return super().mousePressEvent(event)
+
 
 class MainWindow(QGraphicsView):
     def __init__(self):
@@ -311,6 +446,13 @@ class MainWindow(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setWindowTitle("Premium Solitaire")
 
+        self.WindowWidth = int(self.monitor.width*0.7)
+        self.WindowHeight = int(self.monitor.height*0.7)
+        self.center = QPoint(int(self.monitor.width/2), int(self.monitor.height/2))
+        self.topleft = QPoint((self.center.x() - int(self.WindowWidth/2)), (self.center.y() - int(self.WindowHeight/2)))
+        self.setGeometry(self.topleft.x(), self.topleft.y(), self.WindowWidth, self.WindowHeight)
+        self.setFixedSize(self.WindowWidth, self.WindowHeight)
+
         self.path = os.path.dirname(os.path.abspath(__file__))
 
         self.svg = SVGManager()
@@ -319,13 +461,8 @@ class MainWindow(QGraphicsView):
         self.setWindowIcon(icon)
 
         self.WinWindow = WinScreen(self, self.monitor)
-
-        self.WindowWidth = int(self.monitor.width*0.7)
-        self.WindowHeight = int(self.monitor.height*0.7)
-        self.center = QPoint(int(self.monitor.width/2), int(self.monitor.height/2))
-        self.topleft = QPoint((self.center.x() - int(self.WindowWidth/2)), (self.center.y() - int(self.WindowHeight/2)))
-        self.setGeometry(self.topleft.x(), self.topleft.y(), self.WindowWidth, self.WindowHeight)
-        self.setFixedSize(self.WindowWidth, self.WindowHeight)
+        self.Clock = Clock(self.WindowWidth, self.WindowHeight)
+        self.FunFact = FunFacts(self.WindowWidth, self.WindowHeight)
 
     def initScene(self):
         background = QPixmap(self.path + r"\images\bg1.png")
@@ -363,7 +500,25 @@ class MainWindow(QGraphicsView):
         path.addRect(RestartButton.boundingRect())
         RestartButton.shape = lambda : path
         RestartButton.mousePressEvent = lambda event: self.ShuffleCards()
+
+        rect = RoundedRect(rsPad, self.WindowHeight - rsSize - rsPad, self.WindowWidth - rsSize - rsPad*3, rsSize, radius=12, action=self.FunFact.update_fact)
+        color = "#FBF0DF"
+        rect.setBrush(QColor(color))
+        rect.setPen(QPen(Qt.NoPen))
+        self.scene.addItem(rect)
+
+        pad = 5
+        x, y = self.Clock.pos().x(), self.Clock.pos().y()
+        w, h = self.Clock.text_width, self.Clock.text_height
+        rect = RoundedRect(x-pad, y, w+pad*3, h+pad*2, radius=12)
+        color = "#00392B"
+        rect.setBrush(QColor(color))
+        rect.setPen(QPen(Qt.NoPen))
+        self.scene.addItem(rect)
+
         self.scene.addItem(RestartButton)
+        self.scene.addItem(self.Clock)
+        self.scene.addItem(self.FunFact)
 
     def initCards(self):
         self.all_cards = []
@@ -393,22 +548,23 @@ class MainWindow(QGraphicsView):
         for container in [self.Foundation, self.Tableau, self.Stock, self.Waste]:
             container.reset()
         random.shuffle(self.all_cards)
-        removes = 4
+        removes = 5
         n = 24+(7*removes-(sum(range(0, removes))))
         for i in range(n):
             self.Stock.addCard(self.all_cards[i], faceup=False)
-        n = 24+7+6+5+4
         for i in range(7-removes):
             for j in range(i+1):
                 faceup = (i == j)
                 self.Tableau.addCard(self.all_cards[n], faceup=faceup, index=i)
                 n += 1
+        self.Clock.reset()
 
     def CheckWin(self):
         for stack in self.Foundation.cards:
             if len(stack) != 13:
                 return False
-        self.WinWindow.popUp()
+        self.WinWindow.popUp(self.pos(), self.WindowWidth, self.WindowHeight)
+        self.Clock.stop()
         return True
 
     def CheckAutoComplete(self):
@@ -417,7 +573,7 @@ class MainWindow(QGraphicsView):
                 return False
         Run = True
         topfountain = []
-        print("Auto-complete started.")
+        self.Clock.start()
         for stack in self.Foundation.cards:
             if stack:
                 topfountain.append(stack[-1].value)
