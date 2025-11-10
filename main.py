@@ -1,20 +1,15 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QSystemTrayIcon, QMenu, QAction, QToolBar
-from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPixmap, QFontMetrics, QIcon
-from PyQt5.QtCore import QRectF, Qt, QPointF, QPoint, QObject
-from PyQt5.QtCore import QTimer, QElapsedTimer, QRect, QUrl, QTime
-from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
-from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsPixmapItem
+from PyQt5.QtWidgets import (QWidget, QApplication, QLabel, QGraphicsView, QGraphicsScene, \
+                            QGraphicsRectItem, QGraphicsPixmapItem, QPushButton, QGraphicsTextItem)
+from PyQt5.QtGui import (QPainter, QColor, QPen, QFont, QPixmap, QFontMetrics, QIcon, \
+                        QTextOption, QPainterPath, QBrush)
+from PyQt5.QtCore import (Qt, QPointF, QPoint, QObject, QTimer, QTime, QPropertyAnimation, \
+                        QEasingCurve, QEventLoop, pyqtProperty)
 from screeninfo import get_monitors
 import sys
 import math
 import os
 import random
 from SVGManager import SVGManager
-from PyQt5.QtGui import QTextOption, QTransform, QPainterPath, QPalette, QBrush
-from PyQt5.QtWidgets import QPushButton, QGraphicsTextItem
-from PyQt5.QtCore import QEventLoop, QTimer, pyqtProperty
 
 """
 To Do List:
