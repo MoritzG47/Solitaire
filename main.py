@@ -18,9 +18,10 @@ To Do List:
 - undo/redo
 """
 
-
-C_WIDTH = 25 * 6
-C_HEIGHT = 35 * 6
+monitor = get_monitors()[0]
+scale = 0.0026 * monitor.width
+C_WIDTH = int(25 * scale)
+C_HEIGHT = int(35 * scale)
 PAD = 30
 
 
