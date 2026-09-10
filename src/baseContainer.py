@@ -19,7 +19,7 @@ class CardContainer:
         card.position = self.cardPosition(index)
         card.container = self
         card.Index = index
-        card.updatePlace()
+        card.updatePlace(move=False)
         card.updateState()
 
     def removeCard(self, card: "Card"):

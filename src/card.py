@@ -47,7 +47,7 @@ class Card(QGraphicsPixmapItem):
             return True
         return False
 
-    def updatePlace(self, duration=300):
+    def updatePlace(self, move=True, stack_index: int=0, duration=300):
         """Smoothly move the card to its target position."""
         if duration <= 0:
             self.setPos(self.position)
@@ -68,10 +68,23 @@ class Card(QGraphicsPixmapItem):
         anim.setStartValue(self.pos())
         anim.setEndValue(self.position)
         anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        """
+        This if statement fixes the issue where the card would be drawn behind other cards during the animation.
+        But it now causes a problem when drawing cards from the stock they are not immediately at the right z value. 
+        So I commented it out for now.
+        """
+
+        if False: #move:
+            self.setZValue(1000+stack_index)  # On top of everything during the animation
+            # Nach Ende der Animation den Standardwert wiederherstellen
+            anim.finished.connect(lambda: self.setZValue(self.Z_Value))
+        else:
+            self.setZValue(self.Z_Value)
+
         anim.start()
 
         self._animation = anim
-        self.setZValue(self.Z_Value)
 
     def setDragEnabled(self, draggable: bool):
         self._drag_enabled = draggable
@@ -130,7 +143,7 @@ class Card(QGraphicsPixmapItem):
         if destination_card != -1:
             self.validMove(destination_card)
         for c in self.Stacklist:
-            c.updatePlace()
+            c.updatePlace(move=True, stack_index=self.Stacklist.index(c))
         self.Stacklist = []
 
     def __str__(self):
